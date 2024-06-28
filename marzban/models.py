@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, ClassVar
 
 class Token(BaseModel):
     access_token: str
@@ -189,7 +189,7 @@ class UsersResponse(BaseModel):
     total: int
 
 class UserStatus(BaseModel):
-    enum = ["active", "disabled", "limited", "expired", "on_hold"]
+    enum: ClassVar[List[str]] = ["active", "disabled", "limited", "expired", "on_hold"]
 
 class ValidationError(BaseModel):
     loc: List[Any]
