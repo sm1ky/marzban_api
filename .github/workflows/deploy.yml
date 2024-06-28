@@ -32,7 +32,7 @@ jobs:
 
       - name: Bump version and create tag
         run: |
-          bump2version patch --tag --commit
+          bump2version --config-file bumpversion.cfg patch --verbose --tag --commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
