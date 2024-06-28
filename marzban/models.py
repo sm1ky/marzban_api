@@ -138,7 +138,7 @@ class CoreStats(BaseModel):
 
 class UserModify(BaseModel):
     proxies: Optional[Dict[str, ProxySettings]] = {}
-    expire: Optional[int]
+    expire: Optional[int] = 0
     data_limit: Optional[int] = 0
     data_limit_reset_strategy: Optional[str] = "no_reset"
     inbounds: Optional[Dict[str, List[str]]] = {}
