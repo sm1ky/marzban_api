@@ -1,7 +1,7 @@
 import httpx
 from typing import Any, Dict, Optional, List
 from pydantic import BaseModel
-from models import *
+from .models import *
 
 class MarzbanAPI:
     def __init__(self, base_url: str):
