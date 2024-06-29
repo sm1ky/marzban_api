@@ -139,17 +139,17 @@ class CoreStats(BaseModel):
 
 class UserModify(BaseModel):
     proxies: Optional[Dict[str, ProxySettings]] = {}
-    expire: Optional[int] = 0
-    data_limit: Optional[int] = 0
-    data_limit_reset_strategy: Optional[str] = "no_reset"
+    expire: Optional[int] = None
+    data_limit: Optional[int] = None
+    data_limit_reset_strategy: Optional[str] = None
     inbounds: Optional[Dict[str, List[str]]] = {}
     note: Optional[str] = None
     sub_updated_at: Optional[str] = None
     sub_last_user_agent: Optional[str] = None
     online_at: Optional[str] = None
-    on_hold_expire_duration: Optional[int] = 0
+    on_hold_expire_duration: Optional[int] = None
     on_hold_timeout: Optional[str] = None
-    status: Optional[str] = "active"
+    status: Optional[str] = None
 
 class UserTemplateCreate(BaseModel):
     name: Optional[str]
