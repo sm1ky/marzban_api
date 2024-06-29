@@ -37,7 +37,8 @@ class SystemStats(BaseModel):
     outgoing_bandwidth_speed: int
 
 class ProxySettings(BaseModel):
-    pass
+    id: str
+    flow: Optional[str] = None
 
 class UserCreate(BaseModel):
     username: str
