@@ -37,7 +37,7 @@ class SystemStats(BaseModel):
     outgoing_bandwidth_speed: int
 
 class ProxySettings(BaseModel):
-    id: str
+    id: Optional[str] = None
     flow: Optional[str] = None
 
 class UserCreate(BaseModel):
@@ -56,25 +56,25 @@ class UserCreate(BaseModel):
     status: Optional[str] = "active"
 
 class UserResponse(BaseModel):
-    username: str
-    proxies: Dict[str, ProxySettings]
-    expire: Optional[int]
-    data_limit: int
-    data_limit_reset_strategy: str
-    inbounds: Dict[str, List[str]]
-    note: Optional[str]
-    sub_updated_at: Optional[str]
-    sub_last_user_agent: Optional[str]
-    online_at: Optional[str]
-    on_hold_expire_duration: Optional[int]
-    on_hold_timeout: Optional[str]
-    status: str
-    used_traffic: int
-    lifetime_used_traffic: int
-    created_at: str
-    links: List[str]
-    subscription_url: str
-    excluded_inbounds: Dict[str, List[str]]
+    username: Optional[str] = None
+    proxies: Optional[Dict[str, ProxySettings]] = {}
+    expire: Optional[int] = None
+    data_limit: Optional[int] = None
+    data_limit_reset_strategy: Optional[str] = None
+    inbounds: Optional[Dict[str, List[str]]] = {}
+    note: Optional[str] = None
+    sub_updated_at: Optional[str] = None
+    sub_last_user_agent: Optional[str] = None
+    online_at: Optional[str] = None
+    on_hold_expire_duration: Optional[int] = None
+    on_hold_timeout: Optional[str] = None
+    status: Optional[str] = None
+    used_traffic: Optional[int] = None
+    lifetime_used_traffic: Optional[int] = None
+    created_at: Optional[str] = None
+    links: Optional[List[str]] = []
+    subscription_url: Optional[str] = None
+    excluded_inbounds: Optional[Dict[str, List[str]]] = {}
 
 class NodeCreate(BaseModel):
     name: str
