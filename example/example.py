@@ -1,5 +1,5 @@
 import asyncio
-from marzban import MarzbanAPI, AdminCreate, UserCreate, NodeCreate, UserTemplateCreate, AdminModify, UserModify, UserTemplateModify, NodeModify
+from marzban import MarzbanAPI, AdminCreate, UserCreate, NodeCreate, UserTemplateCreate, AdminModify, UserModify, UserTemplateModify, NodeModify, ProxySettings
 
 async def main():
     # Создание клиента API
@@ -36,7 +36,7 @@ async def main():
 
     # Работа с пользователями
     ## Добавление нового пользователя
-    new_user = UserCreate(username="new_user")
+    new_user = UserCreate(username="new_user", proxies={"vless": ProxySettings(flow="xtls-rprx-vision")}, inbounds={'vless': ['VLESS TCP REALITY']})
     added_user = await api.add_user(user=new_user, token=token.access_token)
     print("Added User:", added_user)
 
