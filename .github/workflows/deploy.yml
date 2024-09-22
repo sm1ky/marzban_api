@@ -94,23 +94,6 @@ jobs:
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
         run: python -m build
 
-      - name: Rename built package
-        if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
-        run: |
-          WHL_FILE=$(ls dist/*.whl)
-          NEW_NAME=$(echo $WHL_FILE | sed 's/marzban/marzban-production/')
-          mv "$WHL_FILE" "$NEW_NAME"
-          TAR_FILE=$(ls dist/*.tar.gz)
-          NEW_TAR_NAME=$(echo $TAR_FILE | sed 's/marzban/marzban-production/')
-          mv "$TAR_FILE" "$NEW_TAR_NAME"
-
-      - name: Publish renamed package
-        if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
-        uses: pypa/gh-action-pypi-publish@v1.10.2
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-
       - name: Publish package
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
         uses: pypa/gh-action-pypi-publish@v1.10.2
