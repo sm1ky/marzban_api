@@ -58,5 +58,5 @@ __all__ = (
     "ProxyInbound", 
     "Token", 
     "HTTPValidationError", 
-    "ValidationError"
+    "ValidationError",
 )
