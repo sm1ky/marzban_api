@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+env:
+  BUMP_DEPLOY: ${{ vars.BUMP_DEPLOY }}
+  PUBLISH_DEPLOY: ${{ vars.PUBLISH_DEPLOY }}
+
 jobs:
   print-test:
     runs-on: ubuntu-latest
