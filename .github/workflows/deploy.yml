@@ -83,8 +83,8 @@ jobs:
   
 
   publish:
-    if: ${{ vars.PUBLISH_DEPLOY == 'True' }}
     runs-on: ubuntu-latest
+    if: ${{ vars.PUBLISH_DEPLOY == 'True' }}
     needs: bump-version
     steps:
       - name: Checkout repository
