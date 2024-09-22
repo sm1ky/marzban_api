@@ -39,6 +39,7 @@ jobs:
         if: ${{ !contains(github.event.head_commit.message, '[skip bump]') }}
         id: bump_version 
         run: |
+          git pull --force
           bump2version patch --config-file bumpversion.cfg
           git push origin HEAD:production
           git push origin --tags
@@ -75,7 +76,7 @@ jobs:
 
       - name: Pull latest changes
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
-        run: git pull origin production --tags
+        run: git pull origin production --tags --force
 
       - name: Set up Python
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
