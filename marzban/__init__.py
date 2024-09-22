@@ -28,7 +28,6 @@ from .models import (
     ValidationError
 )
 
-
 __all__ = (
     "__version__",
     "MarzbanAPI",
