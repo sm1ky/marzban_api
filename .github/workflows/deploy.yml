@@ -9,6 +9,12 @@ permissions:
   contents: write
 
 jobs:
+  print-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print BUMP_DEPLOY variable
+        run: echo "BUMP_DEPLOY is ${{ vars.BUMP_DEPLOY }}"
+
   bump-version:
     if: ${{ vars.BUMP_DEPLOY == 'True' }}
     runs-on: ubuntu-latest
