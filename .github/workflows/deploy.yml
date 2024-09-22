@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   bump-version:
-    if: ${{ vars.bump_deploy == 'True' }}
+    if: ${{ vars.BUMP_DEPLOY == 'True' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -57,7 +57,7 @@ jobs:
   
 
   publish:
-    if: ${{ vars.publish_deploy == 'True' }}
+    if: ${{ vars.PUBLISH_DEPLOY == 'True' }}
     runs-on: ubuntu-latest
     needs: bump-version
     steps:
