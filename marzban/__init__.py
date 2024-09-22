@@ -28,7 +28,6 @@ from .models import (
     ValidationError
 )
 
-__version__ = "0.2.3"
 
 __all__ = (
     "__version__",
@@ -60,3 +59,5 @@ __all__ = (
     "HTTPValidationError", 
     "ValidationError",
 )
+
+__version__ = "0.2.3"
