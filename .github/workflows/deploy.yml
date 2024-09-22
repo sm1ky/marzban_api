@@ -8,9 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  BUMP_DEPLOY: ${{ vars.BUMP_DEPLOY }}
-  PUBLISH_DEPLOY: ${{ vars.PUBLISH_DEPLOY }}
 
 jobs:
   print-test:
@@ -20,19 +17,19 @@ jobs:
         run: echo "BUMP_DEPLOY is ${{ vars.BUMP_DEPLOY }}"
 
       - name: Check if BUMP_DEPLOY is True
-        if: ${{ vars.BUMP_DEPLOY == 'True' }}
+        if: ${{ contains(github.event.head_commit.message, '[skip bump]') }}
         run: echo "BUMP_DEPLOY is True"
 
       - name: Check if BUMP_DEPLOY is False
-        if: ${{ vars.BUMP_DEPLOY != 'True' }}
+        if: ${{ !contains(github.event.head_commit.message, '[skip bump]') }}
         run: echo "BUMP_DEPLOY is not True"
 
       - name: Check if PUBLISH_DEPLOY is True
-        if: ${{ vars.PUBLISH_DEPLOY == 'True' }}
+        if: ${{ contains(github.event.head_commit.message, '[skip publish]') }}
         run: echo "PUBLISH_DEPLOY is True"
 
       - name: Check if PUBLISH_DEPLOY is False
-        if: ${{ vars.PUBLISH_DEPLOY != 'True' }}
+        if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
         run: echo "PUBLISH_DEPLOY is not True"
 
   bump-version:
