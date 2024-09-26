@@ -4,9 +4,9 @@ from pydantic import BaseModel
 from .models import *
 
 class MarzbanAPI:
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, *, timeout: float = 10.0):
         self.base_url = base_url
-        self.client = httpx.AsyncClient(base_url=base_url, verify=False)
+        self.client = httpx.AsyncClient(base_url=base_url, verify=False, timeout=timeout)
 
     def _get_headers(self, token: str) -> Dict[str, str]:
         return {"Authorization": f"Bearer {token}"}
