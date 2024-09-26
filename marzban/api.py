@@ -6,7 +6,7 @@ from .models import *
 class MarzbanAPI:
     def __init__(self, base_url: str):
         self.base_url = base_url
-        self.client = httpx.AsyncClient(base_url=base_url)
+        self.client = httpx.AsyncClient(base_url=base_url, verify=False)
 
     def _get_headers(self, token: str) -> Dict[str, str]:
         return {"Authorization": f"Bearer {token}"}
