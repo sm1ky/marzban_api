@@ -14,7 +14,7 @@ class MarzbanAPI:
     async def _request(self, method: str, url: str, token: Optional[str] = None, data: Optional[BaseModel] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         headers = self._get_headers(token) if token else {}
         json_data = data.model_dump(exclude_none=True) if data else None
-        params = [param for param in (params or []) if param is not None]
+        params = {k: v for k, v in (params or {}).items() if v is not None}
         response = await self.client.request(method, url, headers=headers, json=json_data, params=params)
         response.raise_for_status()
         return response
