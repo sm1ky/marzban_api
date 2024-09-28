@@ -20,7 +20,7 @@ pip install marzban
 For detailed documentation and usage examples, select your preferred language below:
 
 - [English](https://github.com/sm1ky/marzban_api/blob/production/.readme/README_en.md)
-- [Русский (Russian)](https://github.com/sm1ky/marzban_api/blob/production/.readme/README_RU.md)
+- [Русский (Russian)](https://github.com/sm1ky/marzban_api/blob/production/.readme/README_ru.md)
 
 ## Contributing
 
