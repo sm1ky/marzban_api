@@ -69,6 +69,7 @@ class UserResponse(BaseModel):
     on_hold_expire_duration: Optional[int] = None
     on_hold_timeout: Optional[str] = None
     status: Optional[str] = None
+    admin: Optional[Admin] = None
     used_traffic: Optional[int] = None
     lifetime_used_traffic: Optional[int] = None
     created_at: Optional[str] = None
