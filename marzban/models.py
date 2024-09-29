@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any, ClassVar
+from pydantic import BaseModel, field_validator, ValidationInfo, AfterValidator, ValidationError
+from typing import Optional, List, Dict, Any, ClassVar, Annotated
 
 class Token(BaseModel):
     access_token: str
@@ -22,19 +22,6 @@ class AdminModify(BaseModel):
 
 class HTTPValidationError(BaseModel):
     detail: Optional[List[Dict[str, Any]]] = None
-
-class SystemStats(BaseModel):
-    version: str
-    mem_total: int
-    mem_used: int
-    cpu_cores: int
-    cpu_usage: float
-    total_user: int
-    users_active: int
-    incoming_bandwidth: int
-    outgoing_bandwidth: int
-    incoming_bandwidth_speed: int
-    outgoing_bandwidth_speed: int
 
 class ProxySettings(BaseModel):
     id: Optional[str] = None
@@ -75,7 +62,13 @@ class UserResponse(BaseModel):
     created_at: Optional[str] = None
     links: Optional[List[str]] = []
     subscription_url: Optional[str] = None
+    subscription_token: Optional[str] = None
     excluded_inbounds: Optional[Dict[str, List[str]]] = None
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.subscription_token and self.subscription_url:
+            self.subscription_token = self.subscription_url.split('/')[-1]
 
 class NodeCreate(BaseModel):
     name: str
@@ -197,3 +190,39 @@ class ValidationError(BaseModel):
     loc: List[Any]
     msg: str
     type: str
+
+class SubscriptionUserResponse(BaseModel):
+    proxies: Dict[str, Any]
+    expire: Optional[int] = None
+    data_limit: Optional[int] = None
+    data_limit_reset_strategy: str = "no_reset"
+    inbounds: Dict[str, List[str]] = {}
+    note: Optional[str] = None
+    sub_updated_at: Optional[str] = None
+    sub_last_user_agent: Optional[str] = None
+    online_at: Optional[str] = None
+    on_hold_expire_duration: Optional[int] = None
+    on_hold_timeout: Optional[str] = None
+    auto_delete_in_days: Optional[int] = None
+    username: str
+    status: str
+    used_traffic: int
+    lifetime_used_traffic: int = 0
+    created_at: str
+    links: List[str] = []
+    subscription_url: str = ""
+    excluded_inbounds: Dict[str, List[str]] = {}
+    admin: Optional[Admin] = None
+    
+class SystemStats(BaseModel):
+    version: Optional[str] = None
+    mem_total: Optional[int] = None
+    mem_used: Optional[int] = None
+    cpu_cores: Optional[int] = None
+    cpu_usage: Optional[float] = None
+    total_user: Optional[int] = None
+    users_active: Optional[int] = None
+    incoming_bandwidth: Optional[int] = None
+    outgoing_bandwidth: Optional[int] = None
+    incoming_bandwidth_speed: Optional[int] = None
+    outgoing_bandwidth_speed: Optional[int] = None

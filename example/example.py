@@ -1,5 +1,6 @@
 import asyncio
 from marzban import MarzbanAPI, AdminCreate, UserCreate, NodeCreate, UserTemplateCreate, AdminModify, UserModify, UserTemplateModify, NodeModify, ProxySettings
+from datetime import datetime 
 
 async def main():
     # Create an API client
@@ -77,11 +78,11 @@ async def main():
     print("Set Owner:", owner_set)
 
     ## Get list of expired users
-    expired_users = await api.get_expired_users(token=token.access_token, expired_before="2024-01-01T00:00:00Z")
+    expired_users = await api.get_expired_users(token=token.access_token, expired_before=datetime.fromisoformat("2024-10-10T00:00:00+00:00"))
     print("Expired Users:", expired_users)
 
     ## Delete expired users
-    deleted_expired_users = await api.delete_expired_users(token=token.access_token, expired_before="2024-01-01T00:00:00Z")
+    deleted_expired_users = await api.delete_expired_users(token=token.access_token, expired_before=datetime.fromisoformat("2024-10-10T00:00:00+00:00"))
     print("Deleted Expired Users:", deleted_expired_users)
 
     # User templates management
@@ -135,6 +136,23 @@ async def main():
     ## Get node usage statistics
     nodes_usage = await api.get_usage(token=token.access_token, start="2023-01-01", end="2023-12-31")
     print("Nodes Usage:", nodes_usage)
+
+    ## Getting node settings
+    node_settings = await api.get_node_settings(token=token.access_token)
+    print("Node Settings:", node_settings)
+
+    ## Getting user subscription information with token
+    user_subscription_info = await api.get_user_subscription_info(url=user_info.subscription_url)
+    print("User Subscription Info:", user_subscription_info)
+
+    ## Getting user usage statistics
+    user_usage = await api.get_user_usage(url=user_info.subscription_url, start="2023-01-01")
+    print("User Usage:", user_usage)
+
+    ## Getting user subscription by client type
+    # Accepts only clients that require a JSON response. Example: sing-box.
+    user_subscription_client = await api.get_user_subscription_with_client_type(url=user_info.subscription_url, client_type="sing-box")
+    print("User Subscription with Client Type:", user_subscription_client)
 
     # Closing the API client
     await api.close()

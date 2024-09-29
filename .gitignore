@@ -72,3 +72,4 @@ venv/
 openapi.json
 temp.py
 bump.sh
+test.py

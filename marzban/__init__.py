@@ -25,7 +25,9 @@ from .models import (
     ProxyInbound, 
     Token, 
     HTTPValidationError, 
-    ValidationError
+    ValidationError,
+    SubscriptionUserResponse,
+    SystemStats
 )
 
 __all__ = (
@@ -57,6 +59,8 @@ __all__ = (
     "Token", 
     "HTTPValidationError", 
     "ValidationError",
+    "SubscriptionUserResponse",
+    "SystemStats"
 )
 
 __version__ = "0.2.8"

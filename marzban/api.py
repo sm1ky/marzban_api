@@ -223,5 +223,45 @@ class MarzbanAPI:
         response = await self._request("GET", url, token, params=params)
         return NodesUsageResponse(**response.json())
 
+    async def get_user_subscription_info(self, url: str = None, token: str = None) -> SubscriptionUserResponse:
+        if url:
+            # Use the provided URL if it is given
+            final_url = url + "/info"
+        elif token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{token}/info"
+        else:
+            raise ValueError("Either url or token must be provided")
+        
+        response = await self._request("GET", final_url)
+        return SubscriptionUserResponse(**response.json())
+
+    async def get_user_usage(self, url: str = None, token: str = None, start: Optional[str] = None, end: Optional[str] = None) -> Any:
+        if url:
+            # Use the provided URL if it is given
+            final_url = url + "/usage"
+        elif token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{token}/usage"
+        else:
+            raise ValueError("Either url or token must be provided")
+        
+        params = {"start": start, "end": end}
+        response = await self._request("GET", final_url, params=params)
+        return response.json()
+
+    async def get_user_subscription_with_client_type(self, client_type: str, url: str = None, token: str = None) -> Any:
+        if url:
+            # Use the provided URL if it is given
+            final_url = url + f"/{client_type}"
+        elif token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{token}/{client_type}"
+        else:
+            raise ValueError("Either url or token must be provided")
+        
+        response = await self._request("GET", final_url)
+        return response.json()
+
     async def close(self):
         await self.client.aclose()
