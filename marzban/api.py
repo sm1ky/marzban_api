@@ -1,17 +1,18 @@
 import httpx
-from typing import Any, Dict, Optional, List
-from pydantic import BaseModel
 from .models import *
 
+
 class MarzbanAPI:
-    def __init__(self, base_url: str, *, timeout: float = 10.0, verify: bool = False):
+    def __init__(self,
+                 base_url: str, *, timeout: float = 10.0, verify: bool = False):
         self.base_url = base_url
         self.client = httpx.AsyncClient(base_url=base_url, verify=verify, timeout=timeout)
 
     def _get_headers(self, token: str) -> Dict[str, str]:
         return {"Authorization": f"Bearer {token}"}
 
-    async def _request(self, method: str, url: str, token: Optional[str] = None, data: Optional[BaseModel] = None, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    async def _request(self, method: str, url: str, token: Optional[str] = None, data: Optional[BaseModel] = None,
+                       params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         headers = self._get_headers(token) if token else {}
         json_data = data.model_dump(exclude_none=True) if data else None
         params = {k: v for k, v in (params or {}).items() if v is not None}
@@ -52,7 +53,8 @@ class MarzbanAPI:
         url = f"/api/admin/{username}"
         await self._request("DELETE", url, token)
 
-    async def get_admins(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None, username: Optional[str] = None) -> List[Admin]:
+    async def get_admins(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None,
+                         username: Optional[str] = None) -> List[Admin]:
         url = "/api/admins"
         params = {"offset": offset, "limit": limit, "username": username}
         response = await self._request("GET", url, token, params=params)
@@ -72,7 +74,7 @@ class MarzbanAPI:
         url = "/api/hosts"
         response = await self._request("GET", url, token)
         return response.json()
-    
+
     async def modify_hosts(self, hosts: Dict[str, List[ProxyHost]], token: str) -> Dict[str, List[ProxyHost]]:
         url = "/api/hosts"
         response = await self._request("PUT", url, token, data=hosts)
@@ -126,7 +128,9 @@ class MarzbanAPI:
         response = await self._request("POST", url, token)
         return UserResponse(**response.json())
 
-    async def get_users(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None, username: Optional[List[str]] = None, status: Optional[str] = None, sort: Optional[str] = None) -> UsersResponse:
+    async def get_users(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None,
+                        username: Optional[List[str]] = None, status: Optional[str] = None,
+                        sort: Optional[str] = None) -> UsersResponse:
         url = "/api/users"
         params = {"offset": offset, "limit": limit, "username": username, "status": status, "sort": sort}
         response = await self._request("GET", url, token, params=params)
@@ -136,7 +140,8 @@ class MarzbanAPI:
         url = "/api/users/reset"
         await self._request("POST", url, token)
 
-    async def get_user_usage(self, username: str, token: str, start: Optional[str] = None, end: Optional[str] = None) -> UserUsagesResponse:
+    async def get_user_usage(self, username: str, token: str, start: Optional[str] = None,
+                             end: Optional[str] = None) -> UserUsagesResponse:
         url = f"/api/user/{username}/usage"
         params = {"start": start, "end": end}
         response: httpx.Response = await self._request("GET", url, token, params=params)
@@ -147,19 +152,22 @@ class MarzbanAPI:
         response = await self._request("PUT", url, token)
         return UserResponse(**response.json())
 
-    async def get_expired_users(self, token: str, expired_before: Optional[str] = None, expired_after: Optional[str] = None) -> List[str]:
+    async def get_expired_users(self, token: str, expired_before: Optional[str] = None,
+                                expired_after: Optional[str] = None) -> List[str]:
         url = "/api/users/expired"
         params = {"expired_before": expired_before, "expired_after": expired_after}
         response = await self._request("GET", url, token, params=params)
         return response.json()
 
-    async def delete_expired_users(self, token: str, expired_before: Optional[str] = None, expired_after: Optional[str] = None) -> List[str]:
+    async def delete_expired_users(self, token: str, expired_before: Optional[str] = None,
+                                   expired_after: Optional[str] = None) -> List[str]:
         url = "/api/users/expired"
         params = {"expired_before": expired_before, "expired_after": expired_after}
         response = await self._request("DELETE", url, token, params=params)
         return response.json()
 
-    async def get_user_templates(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None) -> List[UserTemplateResponse]:
+    async def get_user_templates(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None) -> List[
+        UserTemplateResponse]:
         url = "/api/user_template"
         params = {"offset": offset, "limit": limit}
         response = await self._request("GET", url, token, params=params)
@@ -175,11 +183,12 @@ class MarzbanAPI:
         response = await self._request("GET", url, token)
         return UserTemplateResponse(**response.json())
 
-    async def modify_user_template(self, template_id: int, template: UserTemplateModify, token: str) -> UserTemplateResponse:
+    async def modify_user_template(self, template_id: int, template: UserTemplateModify,
+                                   token: str) -> UserTemplateResponse:
         url = f"/api/user_template/{template_id}"
         response = await self._request("PUT", url, token, data=template)
         return UserTemplateResponse(**response.json())
-    
+
     async def remove_user_template(self, template_id: int, token: str) -> None:
         url = f"/api/user_template/{template_id}"
         await self._request("DELETE", url, token)
@@ -232,23 +241,23 @@ class MarzbanAPI:
             final_url = f"/sub/{token}/info"
         else:
             raise ValueError("Either url or token must be provided")
-        
+
         response = await self._request("GET", final_url)
         return SubscriptionUserResponse(**response.json())
 
-    async def get_user_usage(self, url: str = None, token: str = None, start: Optional[str] = None, end: Optional[str] = None) -> Any:
-        if url:
-            # Use the provided URL if it is given
-            final_url = url + "/usage"
-        elif token:
-            # Form the URL using the token if it is provided
-            final_url = f"/sub/{token}/usage"
-        else:
-            raise ValueError("Either url or token must be provided")
-        
-        params = {"start": start, "end": end}
-        response = await self._request("GET", final_url, params=params)
-        return response.json()
+    # async def get_user_usage(self, url: str = None, token: str = None, start: Optional[str] = None,
+    #                          end: Optional[str] = None) -> Any:
+    #     if url:
+    #         # Use the provided URL if it is given
+    #         final_url = url + "/usage"
+    #     elif token:
+    #         # Form the URL using the token if it is provided
+    #         final_url = f"/sub/{token}/usage"
+    #     else:
+    #         raise ValueError("Either url or token must be provided")
+    #     params = {"start": start, "end": end}
+    #     response = await self._request("GET", final_url, params=params)
+    #     return response.json()
 
     async def get_user_subscription_with_client_type(self, client_type: str, url: str = None, token: str = None) -> Any:
         if url:
@@ -259,7 +268,7 @@ class MarzbanAPI:
             final_url = f"/sub/{token}/{client_type}"
         else:
             raise ValueError("Either url or token must be provided")
-        
+
         response = await self._request("GET", final_url)
         return response.json()
 
