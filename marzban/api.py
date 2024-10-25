@@ -111,7 +111,7 @@ class MarzbanAPI:
 
     async def _request(self, method: str, url: str, token: Optional[str] = None, data: Optional[BaseModel] = None,
                        params: Optional[Dict[str, Any]] = None) -> httpx.Response:
-        if (not self.client and self.ssh_host) or not self._tunnel.is_active:
+        if self.ssh_host and (not self.client or not self._tunnel.is_active):
             # Initialize the HTTP client and SSH tunnel if they are closed
             self._initialize()
             return await self._request(method, url, token, data, params)
@@ -132,7 +132,7 @@ class MarzbanAPI:
             "client_id": "",
             "client_secret": ""
         }
-        if (not self.client and self.ssh_host) or not self._tunnel.is_active:
+        if self.ssh_host and (not self.client or not self._tunnel.is_active):
             # Initialize the HTTP client and SSH tunnel if they are closed
             self._initialize()
             return await self.get_token(username, password)
