@@ -15,7 +15,7 @@ setup(
     ],
     author="Artem",
     author_email="contant@sm1ky.com",
-    description="Асинхронная библиотека Python для взаимодействия с MarzbanAPI",
+    description="Асинхронная библиотека Python для взаимодействия с MarzbanAPI | Поддерживает работу через HTTPS/SSH",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sm1ky/marzban_api",
