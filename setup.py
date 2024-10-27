@@ -24,6 +24,7 @@ setup(
         "Documentation [EN]": "https://github.com/sm1ky/marzban_api/blob/development/.readme/README_en.md", 
         "Documentation [RU]": "https://github.com/sm1ky/marzban_api/blob/development/.readme/README_ru.md", 
         "Source": "https://github.com/sm1ky/marzban_api",
+        "Developer": "https://t.me/sm1ky"
     },
     classifiers=[
         "Programming Language :: Python :: 3",
