@@ -1,9 +1,11 @@
 from pydantic import BaseModel, field_validator, ValidationInfo, AfterValidator, ValidationError
 from typing import Optional, List, Dict, Any, ClassVar, Annotated
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
 
 class Admin(BaseModel):
     username: str
@@ -11,8 +13,10 @@ class Admin(BaseModel):
     telegram_id: Optional[int] = None
     discord_webhook: Optional[str] = None
 
+
 class AdminCreate(Admin):
     password: str
+
 
 class AdminModify(BaseModel):
     is_sudo: bool
@@ -20,13 +24,16 @@ class AdminModify(BaseModel):
     telegram_id: Optional[int] = None
     discord_webhook: Optional[str] = None
 
+
 class HTTPValidationError(BaseModel):
     detail: Optional[List[Dict[str, Any]]] = None
+
 
 class ProxySettings(BaseModel):
     id: Optional[str] = None
     flow: Optional[str] = None
-    
+
+
 class UserCreate(BaseModel):
     username: str
     proxies: Optional[Dict[str, ProxySettings]] = {}
@@ -41,6 +48,7 @@ class UserCreate(BaseModel):
     on_hold_expire_duration: Optional[int] = 0
     on_hold_timeout: Optional[str] = None
     status: Optional[str] = "active"
+
 
 class UserResponse(BaseModel):
     username: Optional[str] = None
@@ -64,11 +72,12 @@ class UserResponse(BaseModel):
     subscription_url: Optional[str] = None
     subscription_token: Optional[str] = None
     excluded_inbounds: Optional[Dict[str, List[str]]] = None
-    
+
     def __init__(self, **data):
         super().__init__(**data)
         if not self.subscription_token and self.subscription_url:
             self.subscription_token = self.subscription_url.split('/')[-1]
+
 
 class NodeCreate(BaseModel):
     name: str
@@ -78,6 +87,7 @@ class NodeCreate(BaseModel):
     usage_coefficient: float = 1.0
     add_as_new_host: bool = True
 
+
 class NodeModify(BaseModel):
     name: Optional[str] = None
     address: Optional[str] = None
@@ -85,6 +95,7 @@ class NodeModify(BaseModel):
     api_port: Optional[int] = None
     usage_coefficient: Optional[float] = None
     status: Optional[str] = None
+
 
 class NodeResponse(BaseModel):
     name: str
@@ -97,14 +108,17 @@ class NodeResponse(BaseModel):
     status: str
     message: Optional[str] = None
 
+
 class NodeUsageResponse(BaseModel):
     node_id: Optional[int] = None
     node_name: Optional[str] = None
     uplink: Optional[int] = None
     downlink: Optional[int] = None
 
+
 class NodesUsageResponse(BaseModel):
     usages: List[NodeUsageResponse]
+
 
 class ProxyHost(BaseModel):
     remark: str
@@ -119,6 +133,7 @@ class ProxyHost(BaseModel):
     allowinsecure: bool
     is_disabled: bool
 
+
 class ProxyInbound(BaseModel):
     tag: str
     protocol: str
@@ -126,10 +141,12 @@ class ProxyInbound(BaseModel):
     tls: str
     port: Any
 
+
 class CoreStats(BaseModel):
     version: str
     started: bool
     logs_websocket: str
+
 
 class UserModify(BaseModel):
     proxies: Optional[Dict[str, ProxySettings]] = {}
@@ -145,6 +162,7 @@ class UserModify(BaseModel):
     on_hold_timeout: Optional[str] = None
     status: Optional[str] = None
 
+
 class UserTemplateCreate(BaseModel):
     name: Optional[str] = None
     data_limit: int = 0
@@ -152,6 +170,7 @@ class UserTemplateCreate(BaseModel):
     username_prefix: Optional[str] = None
     username_suffix: Optional[str] = None
     inbounds: Optional[Dict[str, List[str]]] = {}
+
 
 class UserTemplateResponse(BaseModel):
     id: int
@@ -162,6 +181,7 @@ class UserTemplateResponse(BaseModel):
     username_suffix: Optional[str] = None
     inbounds: Dict[str, List[str]]
 
+
 class UserTemplateModify(BaseModel):
     name: Optional[str] = None
     data_limit: Optional[int] = None
@@ -170,26 +190,32 @@ class UserTemplateModify(BaseModel):
     username_suffix: Optional[str] = None
     inbounds: Optional[Dict[str, List[str]]] = None
 
+
 class UserUsageResponse(BaseModel):
     node_id: Optional[int]
     node_name: Optional[str]
     used_traffic: Optional[int]
 
+
 class UserUsagesResponse(BaseModel):
     username: str
     usages: List[UserUsageResponse]
+
 
 class UsersResponse(BaseModel):
     users: List[UserResponse]
     total: int
 
+
 class UserStatus(BaseModel):
     enum: ClassVar[List[str]] = ["active", "disabled", "limited", "expired", "on_hold"]
+
 
 class ValidationError(BaseModel):
     loc: List[Any]
     msg: str
     type: str
+
 
 class SubscriptionUserResponse(BaseModel):
     proxies: Dict[str, Any]
@@ -213,7 +239,8 @@ class SubscriptionUserResponse(BaseModel):
     subscription_url: str = ""
     excluded_inbounds: Dict[str, List[str]] = {}
     admin: Optional[Admin] = None
-    
+
+
 class SystemStats(BaseModel):
     version: Optional[str] = None
     mem_total: Optional[int] = None
