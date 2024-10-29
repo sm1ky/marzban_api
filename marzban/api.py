@@ -246,13 +246,6 @@ class MarzbanAPI:
         url = "/api/users/reset"
         await self._request("POST", url, token)
 
-    async def get_user_usage(self, username: str, token: str, start: Optional[str] = None,
-                             end: Optional[str] = None) -> UserUsagesResponse:
-        url = f"/api/user/{username}/usage"
-        params = {"start": start, "end": end}
-        response: httpx.Response = await self._request("GET", url, token, params=params)
-        return UserUsagesResponse(**response.json())
-
     async def set_owner(self, username: str, admin_username: str, token: str) -> UserResponse:
         url = f"/api/user/{username}/set-owner?admin_username={admin_username}"
         response = await self._request("PUT", url, token)
