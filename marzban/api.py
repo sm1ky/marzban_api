@@ -235,10 +235,10 @@ class MarzbanAPI:
         return UserResponse(**response.json())
 
     async def get_users(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None,
-                        username: Optional[List[str]] = None, status: Optional[str] = None,
-                        sort: Optional[str] = None) -> UsersResponse:
+                        username: Optional[List[str]] = None, search: Optional[str] = None,
+                        status: Optional[str] = None, sort: Optional[str] = None) -> UsersResponse:
         url = "/api/users"
-        params = {"offset": offset, "limit": limit, "username": username, "status": status, "sort": sort}
+        params = {"offset": offset, "limit": limit, "username": username, "search": search, "status": status, "sort": sort}
         response = await self._request("GET", url, token, params=params)
         return UsersResponse(**response.json())
 
