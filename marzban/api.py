@@ -2,10 +2,9 @@ import httpx
 import paramiko
 from paramiko.ssh_exception import SSHException
 from sshtunnel import SSHTunnelForwarder
-
+from datetime import datetime
 from .models import *
-
-
+from typing import Optional
 class MarzbanAPI:
     def __init__(self,
                  base_url: str, *,
@@ -219,6 +218,11 @@ class MarzbanAPI:
         url = f"/api/user/{username}"
         response = await self._request("PUT", url, token, data=user)
         return UserResponse(**response.json())
+    
+    async def activate_next_plan(self, username: str, token: str) -> UserResponse:
+        url = f"/api/user/{username}/active-next"
+        response = await self._request("POST", url, token)
+        return UserResponse(**response.json())
 
     async def remove_user(self, username: str, token: str) -> None:
         url = f"/api/user/{username}"
@@ -245,6 +249,21 @@ class MarzbanAPI:
     async def reset_users_data_usage(self, token: str) -> None:
         url = "/api/users/reset"
         await self._request("POST", url, token)
+        
+    async def get_user_data_usage(self, username: str, token: str, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> UserUsagesResponse:
+        if isinstance(start_date, str):
+            start_date = datetime.fromisoformat(start_date)
+        if isinstance(end_date, str):
+            end_date = datetime.fromisoformat(end_date)
+        
+        params = {
+            "start": start_date.isoformat(timespec="seconds") if start_date else None,
+            "end": end_date.isoformat(timespec="seconds") if end_date else None
+        }
+        params = {k: v for k, v in params.items() if v is not None} 
+        url = f"/api/user/{username}/usage"
+        response = await self._request("GET", url, token, params=params)
+        return UserUsagesResponse(**response.json())
 
     async def set_owner(self, username: str, admin_username: str, token: str) -> UserResponse:
         url = f"/api/user/{username}/set-owner?admin_username={admin_username}"

@@ -27,7 +27,8 @@ from .models import (
     HTTPValidationError, 
     ValidationError,
     SubscriptionUserResponse,
-    SystemStats
+    SystemStats,
+    NextPlanModel
 )
 
 __all__ = (
@@ -60,7 +61,8 @@ __all__ = (
     "HTTPValidationError", 
     "ValidationError",
     "SubscriptionUserResponse",
-    "SystemStats"
+    "SystemStats",
+    "NextPlanModel"
 )
 
 __version__ = "0.3.3"

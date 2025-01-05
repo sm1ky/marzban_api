@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, ValidationInfo, AfterValidator, ValidationError
-from typing import Optional, List, Dict, Any, ClassVar, Annotated
+from typing import Optional, List, Dict, Any, ClassVar, Annotated, Literal
 
 
 class Token(BaseModel):
@@ -33,6 +33,17 @@ class ProxySettings(BaseModel):
     id: Optional[str] = None
     flow: Optional[str] = None
 
+class NextPlanModel(BaseModel):
+    add_remaining_traffic: bool = False
+    data_limit: Optional[int] = 0 
+    expire: Optional[int] = 0  
+    fire_on_either: bool = True
+
+    @field_validator("data_limit", mode="before")
+    def validate_data_limit(cls, value):
+        if value is not None and value < 0:
+            raise ValueError("Data limit in the next plan must be 0 or greater")
+        return value
 
 class UserCreate(BaseModel):
     username: str
@@ -47,7 +58,8 @@ class UserCreate(BaseModel):
     online_at: Optional[str] = None
     on_hold_expire_duration: Optional[int] = 0
     on_hold_timeout: Optional[str] = None
-    status: Optional[str] = "active"
+    status: Literal["active", "on_hold"] = "active"
+    next_plan: Optional[NextPlanModel] = None
 
 
 class UserResponse(BaseModel):
@@ -63,15 +75,16 @@ class UserResponse(BaseModel):
     online_at: Optional[str] = None
     on_hold_expire_duration: Optional[int] = None
     on_hold_timeout: Optional[str] = None
-    status: Optional[str] = None
-    admin: Optional[Admin] = None
+    status: Literal["active", "disabled", "limited", "expired", "on_hold"] = "active"
     used_traffic: Optional[int] = None
     lifetime_used_traffic: Optional[int] = None
-    created_at: Optional[str] = None
     links: Optional[List[str]] = []
     subscription_url: Optional[str] = None
     subscription_token: Optional[str] = None
     excluded_inbounds: Optional[Dict[str, List[str]]] = None
+    next_plan: Optional[NextPlanModel] = None
+    admin: Optional[Admin] = None
+    created_at: Optional[str] = None
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -152,7 +165,7 @@ class UserModify(BaseModel):
     proxies: Optional[Dict[str, ProxySettings]] = {}
     expire: Optional[int] = None
     data_limit: Optional[int] = None
-    data_limit_reset_strategy: Optional[str] = None
+    data_limit_reset_strategy: Optional[Literal["no_reset", "day", "week", "month", "year"]] = None
     inbounds: Optional[Dict[str, List[str]]] = None
     note: Optional[str] = None
     sub_updated_at: Optional[str] = None
@@ -160,7 +173,8 @@ class UserModify(BaseModel):
     online_at: Optional[str] = None
     on_hold_expire_duration: Optional[int] = None
     on_hold_timeout: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[Literal["active", "disabled", "limited", "expired", "on_hold"]] = None
+    next_plan: Optional[NextPlanModel] = None
 
 
 class UserTemplateCreate(BaseModel):

@@ -11,7 +11,8 @@ setup(
         "httpx>=0.23.0",
         "pydantic>=1.10.0",
         "paramiko>=3.5.0",
-        "sshtunnel>=0.4.0"
+        "sshtunnel>=0.4.0",
+        "datetime>=5.5",
     ],
     author="Artem",
     author_email="contant@sm1ky.com",

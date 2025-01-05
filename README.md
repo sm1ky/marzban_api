@@ -7,8 +7,13 @@
 [![Supported python versions](https://img.shields.io/pypi/pyversions/marzban.svg)](https://pypi.python.org/pypi/marzban)
 [![Downloads](https://img.shields.io/pypi/dm/marzban.svg)](https://pypi.python.org/pypi/marzban)
 [![PyPi Package Version](https://img.shields.io/pypi/v/marzban)](https://pypi.python.org/pypi/marzban)
+[![Supported Marzban Version](https://img.shields.io/badge/Marzban-0.8.0-brightgreen)](https://github.com/Gozargah/Marzban)
+
 
 **MarzbanAPI Client** is an asynchronous Python library designed for interacting with [Marzban](https://github.com/Gozargah/Marzban). It provides comprehensive methods for managing administrators, users, nodes, and system statistics.
+It supports **Marzban version 0.8.0**, providing comprehensive methods for managing administrators, users, nodes, and system statistics.
+
+To see the list of supported Marzban versions and corresponding API compatibility, check out our [Supported Versions](https://github.com/sm1ky/marzban_api/blob/production/.readme/supported_version.md) file.
 
 ## Installation
 

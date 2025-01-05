@@ -71,10 +71,18 @@ async def main():
     modified_user = await api.modify_user(username="new_user", user=UserModify(data_limit=1073741824),
                                           token=token.access_token)
     print("Modified User:", modified_user)
+    
+    # Activate Next Plan
+    next_plan = await api.activate_next_plan(username="new_user", token=token.access_token)
+    print("Next Plan Activated:", next_plan)
 
     # Remove a user
     await api.remove_user(username="new_user", token=token.access_token)
     print("Removed User: new_user")
+    
+    # Get user data usage
+    user_data_usage = await api.get_user_data_usage(username="new_user", token=token.access_token, start_date="2023-01-01", end_date="2023-12-31")
+    print("User Data Usage:", user_data_usage)
 
     # Reset user data usage
     reset_user_data = await api.reset_user_data_usage(username="new_user", token=token.access_token)
