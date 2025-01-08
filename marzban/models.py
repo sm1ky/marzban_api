@@ -12,6 +12,7 @@ class Admin(BaseModel):
     is_sudo: bool
     telegram_id: Optional[int] = None
     discord_webhook: Optional[str] = None
+    users_usage: Optional[int] = None
 
 
 class AdminCreate(Admin):
@@ -23,6 +24,7 @@ class AdminModify(BaseModel):
     password: Optional[str] = None
     telegram_id: Optional[int] = None
     discord_webhook: Optional[str] = None
+    users_usage: Optional[int] = None
 
 
 class HTTPValidationError(BaseModel):
