@@ -165,6 +165,24 @@ class MarzbanAPI:
         response = await self._request("GET", url, token, params=params)
         return [Admin(**admin) for admin in response.json()]
 
+    async def disable_all_users_admin(self, username: str, token: str) -> None:
+        url = f"/api/admin/{username}/users/disable"
+        await self._request("POST", url, token)
+        
+    async def activate_all_users_admin(self, username: str, token: str) -> None:
+        url = f"/api/admin/{username}/users/activate"
+        await self._request("POST", url, token)
+   
+    async def reset_admin_usage(self, username: str, token: str) -> Admin:
+        url = f"/api/admin/usage/reset/{username}"
+        response = await self._request("POST", url, token)
+        return Admin(**response.json())
+    
+    async def get_admin_usage(self, username: str, token: str) -> Admin:
+        url = f"/api/admin/usage/{username}"
+        response = await self._request("GET", url, token)
+        return response.json()
+    
     async def get_system_stats(self, token: str) -> SystemStats:
         url = "/api/system"
         response = await self._request("GET", url, token)
