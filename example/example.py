@@ -46,7 +46,23 @@ async def main():
 
     # Remove an admin
     await api.remove_admin(username="admin2", token=token.access_token)
-    print("Removed Admin: new_admin")
+    print("Removed Admin: admin2")
+
+    # Disable all users by admin
+    disable_users = await api.disable_all_users_admin(username="admin", token=token.access_token)
+    print("Disable user status:", disable_users)
+
+    # Enable all users by admin
+    enable_users = await api.activate_all_users_admin(username="admin", token=token.access_token)
+    print("Enable user status:", enable_users)
+
+    # Reset admin usage
+    reset_admin_usage = await api.reset_admin_usage(username="admin", token=token.access_token)
+    print("Reset admin usage:", reset_admin_usage)
+
+    # Get admin usage
+    get_admin_usage = await api.get_admin_usage(username="admin", token=token.access_token)
+    print("View admin usage:", get_admin_usage)
 
     # Get a list of admins
     admins = await api.get_admins(token=token.access_token, offset=0, limit=10)
