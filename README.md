@@ -12,7 +12,7 @@
 
 
 **MarzbanAPI Client** is an asynchronous Python library designed for interacting with [Marzban](https://github.com/Gozargah/Marzban). It provides comprehensive methods for managing administrators, users, nodes, and system statistics.
-It supports **Marzban version 0.8.2**, providing comprehensive methods for managing administrators, users, nodes, and system statistics.
+It supports **Marzban version 0.8.4**, providing comprehensive methods for managing administrators, users, nodes, and system statistics.
 
 To see the list of supported Marzban versions and corresponding API compatibility, check out our [Supported Versions](https://github.com/sm1ky/marzban_api/blob/production/.readme/supported_version.md) file.
 
