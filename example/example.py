@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 
 from marzban import MarzbanAPI, AdminCreate, UserCreate, NodeCreate, UserTemplateCreate, AdminModify, UserModify, \
-    UserTemplateModify, NodeModify, ProxySettings
+    UserTemplateModify, NodeModify, ProxySettings, MarzbanTokenCache
 
 
 async def main():
@@ -214,6 +214,26 @@ async def main():
 
     # Closing the API client
     await api.close()
+
+
+async def main_with_token_cache():
+    # An example of usage with auto-renewal of a token after its expiration
+    api = MarzbanAPI(base_url="http://marzban-api.com")
+
+    marz_token = MarzbanTokenCache(
+        client=api,
+        username='login', password='password',
+        token_expire_minutes=1440  # DEFAULT VALUE (Optional argument)
+    )
+    # Get a list of users
+    users = await api.get_users(token=await marz_token.get_token(), offset=0, limit=10)
+    print("Users:", users)
+
+    # Get list of nodes
+    nodes = await api.get_nodes(token=await marz_token.get_token())
+    print("Nodes:", nodes)
+
+
 
 # Run the main async function
 asyncio.run(main())
