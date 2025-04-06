@@ -272,10 +272,6 @@ class SystemStats(BaseModel):
     outgoing_bandwidth_speed: Optional[int] = None
 
 
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel
-
-
 class Settings(BaseModel):
     clients: Optional[List[Dict[str, Any]]] = []
     decryption: Optional[str] = None
