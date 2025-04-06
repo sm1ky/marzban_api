@@ -270,3 +270,58 @@ class SystemStats(BaseModel):
     outgoing_bandwidth: Optional[int] = None
     incoming_bandwidth_speed: Optional[int] = None
     outgoing_bandwidth_speed: Optional[int] = None
+
+
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel
+
+
+class Settings(BaseModel):
+    clients: Optional[List[Dict[str, Any]]] = []
+    decryption: Optional[str] = None
+    network: Optional[str] = None
+
+
+class StreamSettings(BaseModel):
+    network: Optional[str] = None
+    security: Optional[str] = None
+    tcpSettings: Optional[Dict[str, Any]] = {}
+    wsSettings: Optional[Dict[str, Any]] = {}
+    grpcSettings: Optional[Dict[str, Any]] = {}
+    tlsSettings: Optional[Dict[str, Any]] = {}
+    realitySettings: Optional[Dict[str, Any]] = {}
+
+
+class Inbound(BaseModel):
+    port: Optional[int] = None
+    protocol: Optional[str] = None
+    settings: Optional[Settings] = Settings()
+    streamSettings: Optional[StreamSettings] = StreamSettings()
+    sniffing: Optional[Dict[str, Any]] = {}
+    tag: Optional[str] = None
+
+
+class Outbound(BaseModel):
+    protocol: Optional[str] = None
+    settings: Optional[Dict[str, Any]] = {}
+    tag: Optional[str] = None
+
+
+class RoutingRule(BaseModel):
+    type: Optional[str] = None
+    ip: Optional[List[str]] = []
+    domain: Optional[List[str]] = []
+    protocol: Optional[List[str]] = []
+    outboundTag: Optional[str] = None
+
+
+class Routing(BaseModel):
+    domainStrategy: Optional[str] = None
+    rules: Optional[List[RoutingRule]] = []
+
+
+class CoreConfig(BaseModel):
+    log: Optional[Dict[str, Any]] = {}
+    inbounds: Optional[List[Inbound]] = []
+    outbounds: Optional[List[Outbound]] = []
+    routing: Optional[Routing] = Routing()
