@@ -202,7 +202,9 @@ class MarzbanAPI:
 
     async def modify_hosts(self, hosts: Dict[str, List[ProxyHost]], token: str) -> Dict[str, List[ProxyHost]]:
         url = "/api/hosts"
-        response = await self._request("PUT", url, token, data=hosts)
+
+        hosts_model = HostsModel(root=hosts)
+        response = await self._request("PUT", url, token, data=hosts_model)
         return response.json()
 
     async def get_core_stats(self, token: str) -> CoreStats:
@@ -219,7 +221,7 @@ class MarzbanAPI:
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def modify_core_config(self, config: Dict[str, Any], token: str) -> Dict[str, Any]:
+    async def modify_core_config(self, config: CoreConfig, token: str) -> Dict[str, Any]:
         url = "/api/core/config"
         response = await self._request("PUT", url, token, data=config)
         return response.json()
