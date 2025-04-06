@@ -1,5 +1,6 @@
-from pydantic import BaseModel, field_validator, ValidationInfo, AfterValidator, ValidationError
-from typing import Optional, List, Dict, Any, ClassVar, Annotated, Literal
+from typing import Optional, List, Dict, Any, ClassVar, Literal
+
+from pydantic import BaseModel, field_validator, RootModel
 
 
 class Token(BaseModel):
@@ -35,10 +36,11 @@ class ProxySettings(BaseModel):
     id: Optional[str] = None
     flow: Optional[str] = None
 
+
 class NextPlanModel(BaseModel):
     add_remaining_traffic: bool = False
-    data_limit: Optional[int] = 0 
-    expire: Optional[int] = 0  
+    data_limit: Optional[int] = 0
+    expire: Optional[int] = 0
     fire_on_either: bool = True
 
     @field_validator("data_limit", mode="before")
@@ -46,6 +48,7 @@ class NextPlanModel(BaseModel):
         if value is not None and value < 0:
             raise ValueError("Data limit in the next plan must be 0 or greater")
         return value
+
 
 class UserCreate(BaseModel):
     username: str
@@ -147,6 +150,10 @@ class ProxyHost(BaseModel):
     fingerprint: str = ""
     allowinsecure: bool
     is_disabled: bool
+
+
+class HostsModel(RootModel):
+    root: Dict[str, List[ProxyHost]]
 
 
 class ProxyInbound(BaseModel):
@@ -269,3 +276,54 @@ class SystemStats(BaseModel):
     outgoing_bandwidth: Optional[int] = None
     incoming_bandwidth_speed: Optional[int] = None
     outgoing_bandwidth_speed: Optional[int] = None
+
+
+class Settings(BaseModel):
+    clients: Optional[List[Dict[str, Any]]] = []
+    decryption: Optional[str] = None
+    network: Optional[str] = None
+
+
+class StreamSettings(BaseModel):
+    network: Optional[str] = None
+    security: Optional[str] = None
+    tcpSettings: Optional[Dict[str, Any]] = {}
+    wsSettings: Optional[Dict[str, Any]] = {}
+    grpcSettings: Optional[Dict[str, Any]] = {}
+    tlsSettings: Optional[Dict[str, Any]] = {}
+    realitySettings: Optional[Dict[str, Any]] = {}
+
+
+class Inbound(BaseModel):
+    port: Optional[int] = None
+    protocol: Optional[str] = None
+    settings: Optional[Settings] = Settings()
+    streamSettings: Optional[StreamSettings] = StreamSettings()
+    sniffing: Optional[Dict[str, Any]] = {}
+    tag: Optional[str] = None
+
+
+class Outbound(BaseModel):
+    protocol: Optional[str] = None
+    settings: Optional[Dict[str, Any]] = {}
+    tag: Optional[str] = None
+
+
+class RoutingRule(BaseModel):
+    type: Optional[str] = None
+    ip: Optional[List[str]] = []
+    domain: Optional[List[str]] = []
+    protocol: Optional[List[str]] = []
+    outboundTag: Optional[str] = None
+
+
+class Routing(BaseModel):
+    domainStrategy: Optional[str] = None
+    rules: Optional[List[RoutingRule]] = []
+
+
+class CoreConfig(BaseModel):
+    log: Optional[Dict[str, Any]] = {}
+    inbounds: Optional[List[Inbound]] = []
+    outbounds: Optional[List[Outbound]] = []
+    routing: Optional[Routing] = Routing()

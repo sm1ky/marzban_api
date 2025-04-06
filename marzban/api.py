@@ -5,6 +5,8 @@ from sshtunnel import SSHTunnelForwarder
 from datetime import datetime
 from .models import *
 from typing import Optional
+
+
 class MarzbanAPI:
     def __init__(self,
                  base_url: str, *,
@@ -168,21 +170,21 @@ class MarzbanAPI:
     async def disable_all_users_admin(self, username: str, token: str) -> None:
         url = f"/api/admin/{username}/users/disable"
         await self._request("POST", url, token)
-        
+
     async def activate_all_users_admin(self, username: str, token: str) -> None:
         url = f"/api/admin/{username}/users/activate"
         await self._request("POST", url, token)
-   
+
     async def reset_admin_usage(self, username: str, token: str) -> Admin:
         url = f"/api/admin/usage/reset/{username}"
         response = await self._request("POST", url, token)
         return Admin(**response.json())
-    
+
     async def get_admin_usage(self, username: str, token: str) -> Admin:
         url = f"/api/admin/usage/{username}"
         response = await self._request("GET", url, token)
         return response.json()
-    
+
     async def get_system_stats(self, token: str) -> SystemStats:
         url = "/api/system"
         response = await self._request("GET", url, token)
@@ -200,7 +202,9 @@ class MarzbanAPI:
 
     async def modify_hosts(self, hosts: Dict[str, List[ProxyHost]], token: str) -> Dict[str, List[ProxyHost]]:
         url = "/api/hosts"
-        response = await self._request("PUT", url, token, data=hosts)
+
+        hosts_model = HostsModel(root=hosts)
+        response = await self._request("PUT", url, token, data=hosts_model)
         return response.json()
 
     async def get_core_stats(self, token: str) -> CoreStats:
@@ -217,7 +221,7 @@ class MarzbanAPI:
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def modify_core_config(self, config: Dict[str, Any], token: str) -> Dict[str, Any]:
+    async def modify_core_config(self, config: CoreConfig, token: str) -> Dict[str, Any]:
         url = "/api/core/config"
         response = await self._request("PUT", url, token, data=config)
         return response.json()
@@ -236,7 +240,7 @@ class MarzbanAPI:
         url = f"/api/user/{username}"
         response = await self._request("PUT", url, token, data=user)
         return UserResponse(**response.json())
-    
+
     async def activate_next_plan(self, username: str, token: str) -> UserResponse:
         url = f"/api/user/{username}/active-next"
         response = await self._request("POST", url, token)
@@ -260,25 +264,27 @@ class MarzbanAPI:
                         username: Optional[List[str]] = None, search: Optional[str] = None,
                         status: Optional[str] = None, sort: Optional[str] = None) -> UsersResponse:
         url = "/api/users"
-        params = {"offset": offset, "limit": limit, "username": username, "search": search, "status": status, "sort": sort}
+        params = {"offset": offset, "limit": limit, "username": username, "search": search, "status": status,
+                  "sort": sort}
         response = await self._request("GET", url, token, params=params)
         return UsersResponse(**response.json())
 
     async def reset_users_data_usage(self, token: str) -> None:
         url = "/api/users/reset"
         await self._request("POST", url, token)
-        
-    async def get_user_data_usage(self, username: str, token: str, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> UserUsagesResponse:
+
+    async def get_user_data_usage(self, username: str, token: str, start_date: Optional[datetime] = None,
+                                  end_date: Optional[datetime] = None) -> UserUsagesResponse:
         if isinstance(start_date, str):
             start_date = datetime.fromisoformat(start_date)
         if isinstance(end_date, str):
             end_date = datetime.fromisoformat(end_date)
-        
+
         params = {
             "start": start_date.isoformat(timespec="seconds") if start_date else None,
             "end": end_date.isoformat(timespec="seconds") if end_date else None
         }
-        params = {k: v for k, v in params.items() if v is not None} 
+        params = {k: v for k, v in params.items() if v is not None}
         url = f"/api/user/{username}/usage"
         response = await self._request("GET", url, token, params=params)
         return UserUsagesResponse(**response.json())
