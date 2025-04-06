@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any, ClassVar, Literal
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, RootModel
 
 
 class Token(BaseModel):
@@ -36,10 +36,11 @@ class ProxySettings(BaseModel):
     id: Optional[str] = None
     flow: Optional[str] = None
 
+
 class NextPlanModel(BaseModel):
     add_remaining_traffic: bool = False
-    data_limit: Optional[int] = 0 
-    expire: Optional[int] = 0  
+    data_limit: Optional[int] = 0
+    expire: Optional[int] = 0
     fire_on_either: bool = True
 
     @field_validator("data_limit", mode="before")
@@ -47,6 +48,7 @@ class NextPlanModel(BaseModel):
         if value is not None and value < 0:
             raise ValueError("Data limit in the next plan must be 0 or greater")
         return value
+
 
 class UserCreate(BaseModel):
     username: str
@@ -148,6 +150,10 @@ class ProxyHost(BaseModel):
     fingerprint: str = ""
     allowinsecure: bool
     is_disabled: bool
+
+
+class HostsModel(RootModel):
+    root: Dict[str, List[ProxyHost]]
 
 
 class ProxyInbound(BaseModel):
