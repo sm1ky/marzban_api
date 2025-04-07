@@ -95,10 +95,10 @@ jobs:
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
         run: python -m build
 
-      - name: Inspect METADATA
+      - name: Inspect METADATA (for debug)
         run: |
           unzip dist/*.whl -d temp/
-          cat temp/METADATA
+          cat temp/*.dist-info/METADATA
 
       - name: Publish package
         if: ${{ !contains(github.event.head_commit.message, '[skip publish]') }}
