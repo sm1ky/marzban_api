@@ -137,6 +137,7 @@ class MarzbanAPI:
                 token_response = await self.get_token(self.marzban_username, self.marzban_password)
                 self._marzban_token = token_response.access_token
                 token = self._marzban_token
+                return await self._request(method, url, token, data, params)
             else:
                 raise ValueError("Marzban username and password must be provided to obtain a token.")
         response.raise_for_status()
