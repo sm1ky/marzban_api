@@ -20,7 +20,9 @@ class MarzbanAPI:
                  local_bind_host: str = '127.0.0.1',
                  local_bind_port: int = 8000,
                  remote_bind_host: str = '127.0.0.1',
-                 remote_bind_port: int = 8000
+                 remote_bind_port: int = 8000,
+                 marzban_username: str = "",
+                 marzban_password: str = "",
                  ):
         """
         Initializes the MarzbanAPI client with optional SSH tunneling for secure remote access.
@@ -38,6 +40,8 @@ class MarzbanAPI:
         :param local_bind_port: Local port for SSH tunnel binding (default: 8000).
         :param remote_bind_host: Remote IP address for binding on the SSH server side (default: '127.0.0.1').
         :param remote_bind_port: Remote port for the SSH server binding (default: 8000).
+        :param marzban_username: Marzban username to get login automatically.
+        :param marzban_password: Marzban password to get login automatically.
 
         :raises ValueError: If SSH tunneling is requested but neither a private key nor password is provided.
         """
@@ -55,6 +59,9 @@ class MarzbanAPI:
         self.local_bind_port = local_bind_port
         self.remote_bind_host = remote_bind_host
         self.remote_bind_port = remote_bind_port
+        self.marzban_username = marzban_username
+        self.marzban_password = marzban_password
+        self._marzban_token = None
         self.client = None
         self._tunnel = None
         self._forwarder = None
@@ -116,10 +123,22 @@ class MarzbanAPI:
             # Initialize the HTTP client and SSH tunnel if they are closed
             self._initialize()
             return await self._request(method, url, token, data, params)
+        
+        # Если токен не передан, используем сохраненный или получаем новый
+        if token is None:
+            token = self._marzban_token
+            
         headers = self._get_headers(token) if token else {}
         json_data = data.model_dump(exclude_none=True) if data else None
         params = {k: v for k, v in (params or {}).items() if v is not None}
         response = await self.client.request(method, url, headers=headers, json=json_data, params=params)
+        if response.status_code == 401:
+            if self.marzban_username and self.marzban_password:
+                token_response = await self.get_token(self.marzban_username, self.marzban_password)
+                self._marzban_token = token_response.access_token
+                token = self._marzban_token
+            else:
+                raise ValueError("Marzban username and password must be provided to obtain a token.")
         response.raise_for_status()
         return response
 
