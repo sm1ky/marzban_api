@@ -20,7 +20,9 @@ class MarzbanAPI:
                  local_bind_host: str = '127.0.0.1',
                  local_bind_port: int = 8000,
                  remote_bind_host: str = '127.0.0.1',
-                 remote_bind_port: int = 8000
+                 remote_bind_port: int = 8000,
+                 marzban_username: str = "",
+                 marzban_password: str = "",
                  ):
         """
         Initializes the MarzbanAPI client with optional SSH tunneling for secure remote access.
@@ -38,6 +40,8 @@ class MarzbanAPI:
         :param local_bind_port: Local port for SSH tunnel binding (default: 8000).
         :param remote_bind_host: Remote IP address for binding on the SSH server side (default: '127.0.0.1').
         :param remote_bind_port: Remote port for the SSH server binding (default: 8000).
+        :param marzban_username: Marzban username to get login automatically.
+        :param marzban_password: Marzban password to get login automatically.
 
         :raises ValueError: If SSH tunneling is requested but neither a private key nor password is provided.
         """
@@ -55,6 +59,9 @@ class MarzbanAPI:
         self.local_bind_port = local_bind_port
         self.remote_bind_host = remote_bind_host
         self.remote_bind_port = remote_bind_port
+        self.marzban_username = marzban_username
+        self.marzban_password = marzban_password
+        self._marzban_token = None
         self.client = None
         self._tunnel = None
         self._forwarder = None
@@ -116,10 +123,20 @@ class MarzbanAPI:
             # Initialize the HTTP client and SSH tunnel if they are closed
             self._initialize()
             return await self._request(method, url, token, data, params)
+        
+        # Если токен не передан, используем сохраненный или получаем новый
+        if token is None:
+            token = self._marzban_token
+            
         headers = self._get_headers(token) if token else {}
         json_data = data.model_dump(exclude_none=True) if data else None
         params = {k: v for k, v in (params or {}).items() if v is not None}
         response = await self.client.request(method, url, headers=headers, json=json_data, params=params)
+        if response.status_code == 401:
+            token_response = await self.get_token(self.marzban_username, self.marzban_password)
+            self._marzban_token = token_response.access_token
+            token = self._marzban_token
+            return await self._request(method, url, token, data, params)
         response.raise_for_status()
         return response
 
@@ -141,126 +158,126 @@ class MarzbanAPI:
         response.raise_for_status()
         return Token(**response.json())
 
-    async def get_current_admin(self, token: str) -> Admin:
+    async def get_current_admin(self, token: str | None = None) -> Admin:
         url = "/api/admin"
         response = await self._request("GET", url, token)
         return Admin(**response.json())
 
-    async def create_admin(self, admin: AdminCreate, token: str) -> Admin:
+    async def create_admin(self, admin: AdminCreate, token: str | None = None) -> Admin:
         url = "/api/admin"
         response = await self._request("POST", url, token, data=admin)
         return Admin(**response.json())
 
-    async def modify_admin(self, username: str, admin: AdminModify, token: str) -> Admin:
+    async def modify_admin(self, username: str, admin: AdminModify, token: str | None = None) -> Admin:
         url = f"/api/admin/{username}"
         response = await self._request("PUT", url, token, data=admin)
         return Admin(**response.json())
 
-    async def remove_admin(self, username: str, token: str) -> None:
+    async def remove_admin(self, username: str, token: str | None = None) -> None:
         url = f"/api/admin/{username}"
         await self._request("DELETE", url, token)
 
-    async def get_admins(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None,
+    async def get_admins(self, token: str | None = None, offset: Optional[int] = None, limit: Optional[int] = None,
                          username: Optional[str] = None) -> List[Admin]:
         url = "/api/admins"
         params = {"offset": offset, "limit": limit, "username": username}
         response = await self._request("GET", url, token, params=params)
         return [Admin(**admin) for admin in response.json()]
 
-    async def disable_all_users_admin(self, username: str, token: str) -> None:
+    async def disable_all_users_admin(self, username: str, token: str | None = None) -> None:
         url = f"/api/admin/{username}/users/disable"
         await self._request("POST", url, token)
 
-    async def activate_all_users_admin(self, username: str, token: str) -> None:
+    async def activate_all_users_admin(self, username: str, token: str | None = None) -> None:
         url = f"/api/admin/{username}/users/activate"
         await self._request("POST", url, token)
 
-    async def reset_admin_usage(self, username: str, token: str) -> Admin:
+    async def reset_admin_usage(self, username: str, token: str | None = None) -> Admin:
         url = f"/api/admin/usage/reset/{username}"
         response = await self._request("POST", url, token)
         return Admin(**response.json())
 
-    async def get_admin_usage(self, username: str, token: str) -> Admin:
+    async def get_admin_usage(self, username: str, token: str | None = None) -> Admin:
         url = f"/api/admin/usage/{username}"
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def get_system_stats(self, token: str) -> SystemStats:
+    async def get_system_stats(self, token: str | None = None) -> SystemStats:
         url = "/api/system"
         response = await self._request("GET", url, token)
         return SystemStats(**response.json())
 
-    async def get_inbounds(self, token: str) -> Dict[str, List[ProxyInbound]]:
+    async def get_inbounds(self, token: str | None = None) -> Dict[str, List[ProxyInbound]]:
         url = "/api/inbounds"
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def get_hosts(self, token: str) -> Dict[str, List[ProxyHost]]:
+    async def get_hosts(self, token: str | None = None) -> Dict[str, List[ProxyHost]]:
         url = "/api/hosts"
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def modify_hosts(self, hosts: Dict[str, List[ProxyHost]], token: str) -> Dict[str, List[ProxyHost]]:
+    async def modify_hosts(self, hosts: Dict[str, List[ProxyHost]], token: str | None = None) -> Dict[str, List[ProxyHost]]:
         url = "/api/hosts"
 
         hosts_model = HostsModel(root=hosts)
         response = await self._request("PUT", url, token, data=hosts_model)
         return response.json()
 
-    async def get_core_stats(self, token: str) -> CoreStats:
+    async def get_core_stats(self, token: str | None = None) -> CoreStats:
         url = "/api/core"
         response = await self._request("GET", url, token)
         return CoreStats(**response.json())
 
-    async def restart_core(self, token: str) -> None:
+    async def restart_core(self, token: str | None = None) -> None:
         url = "/api/core/restart"
         await self._request("POST", url, token)
 
-    async def get_core_config(self, token: str) -> Dict[str, Any]:
+    async def get_core_config(self, token: str | None = None) -> Dict[str, Any]:
         url = "/api/core/config"
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def modify_core_config(self, config: CoreConfig, token: str) -> Dict[str, Any]:
+    async def modify_core_config(self, config: CoreConfig, token: str | None = None) -> Dict[str, Any]:
         url = "/api/core/config"
         response = await self._request("PUT", url, token, data=config)
         return response.json()
 
-    async def add_user(self, user: UserCreate, token: str) -> UserResponse:
+    async def add_user(self, user: UserCreate, token: str | None = None) -> UserResponse:
         url = "/api/user"
         response = await self._request("POST", url, token, data=user)
         return UserResponse(**response.json())
 
-    async def get_user(self, username: str, token: str) -> UserResponse:
+    async def get_user(self, username: str, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}"
         response = await self._request("GET", url, token)
         return UserResponse(**response.json())
 
-    async def modify_user(self, username: str, user: UserModify, token: str) -> UserResponse:
+    async def modify_user(self, username: str, user: UserModify, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}"
         response = await self._request("PUT", url, token, data=user)
         return UserResponse(**response.json())
 
-    async def activate_next_plan(self, username: str, token: str) -> UserResponse:
+    async def activate_next_plan(self, username: str, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}/active-next"
         response = await self._request("POST", url, token)
         return UserResponse(**response.json())
 
-    async def remove_user(self, username: str, token: str) -> None:
+    async def remove_user(self, username: str, token: str | None = None) -> None:
         url = f"/api/user/{username}"
         await self._request("DELETE", url, token)
 
-    async def reset_user_data_usage(self, username: str, token: str) -> UserResponse:
+    async def reset_user_data_usage(self, username: str, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}/reset"
         response = await self._request("POST", url, token)
         return UserResponse(**response.json())
 
-    async def revoke_user_subscription(self, username: str, token: str) -> UserResponse:
+    async def revoke_user_subscription(self, username: str, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}/revoke_sub"
         response = await self._request("POST", url, token)
         return UserResponse(**response.json())
 
-    async def get_users(self, token: str, offset: Optional[int] = None, limit: Optional[int] = None,
+    async def get_users(self, token: str | None = None, offset: Optional[int] = None, limit: Optional[int] = None,
                         username: Optional[List[str]] = None, search: Optional[str] = None,
                         status: Optional[str] = None, sort: Optional[str] = None) -> UsersResponse:
         url = "/api/users"
@@ -269,11 +286,11 @@ class MarzbanAPI:
         response = await self._request("GET", url, token, params=params)
         return UsersResponse(**response.json())
 
-    async def reset_users_data_usage(self, token: str) -> None:
+    async def reset_users_data_usage(self, token: str | None = None) -> None:
         url = "/api/users/reset"
         await self._request("POST", url, token)
 
-    async def get_user_data_usage(self, username: str, token: str, start_date: Optional[datetime] = None,
+    async def get_user_data_usage(self, username: str, token: str | None = None, start_date: Optional[datetime] = None,
                                   end_date: Optional[datetime] = None) -> UserUsagesResponse:
         if isinstance(start_date, str):
             start_date = datetime.fromisoformat(start_date)
@@ -289,19 +306,19 @@ class MarzbanAPI:
         response = await self._request("GET", url, token, params=params)
         return UserUsagesResponse(**response.json())
 
-    async def set_owner(self, username: str, admin_username: str, token: str) -> UserResponse:
+    async def set_owner(self, username: str, admin_username: str, token: str | None = None) -> UserResponse:
         url = f"/api/user/{username}/set-owner?admin_username={admin_username}"
         response = await self._request("PUT", url, token)
         return UserResponse(**response.json())
 
-    async def get_expired_users(self, token: str, expired_before: Optional[str] = None,
+    async def get_expired_users(self, token: str | None = None, expired_before: Optional[str] = None,
                                 expired_after: Optional[str] = None) -> List[str]:
         url = "/api/users/expired"
         params = {"expired_before": expired_before, "expired_after": expired_after}
         response = await self._request("GET", url, token, params=params)
         return response.json()
 
-    async def delete_expired_users(self, token: str, expired_before: Optional[str] = None,
+    async def delete_expired_users(self, token: str | None = None, expired_before: Optional[str] = None,
                                    expired_after: Optional[str] = None) -> List[str]:
         url = "/api/users/expired"
         params = {"expired_before": expired_before, "expired_after": expired_after}
@@ -309,7 +326,7 @@ class MarzbanAPI:
         return response.json()
 
     async def get_user_templates(self,
-                                 token: str,
+                                 token: str | None = None,
                                  offset: Optional[int] = None,
                                  limit: Optional[int] = None) -> List[UserTemplateResponse]:
         url = "/api/user_template"
@@ -317,79 +334,82 @@ class MarzbanAPI:
         response = await self._request("GET", url, token, params=params)
         return [UserTemplateResponse(**template) for template in response.json()]
 
-    async def add_user_template(self, template: UserTemplateCreate, token: str) -> UserTemplateResponse:
+    async def add_user_template(self, template: UserTemplateCreate, token: str | None = None) -> UserTemplateResponse:
         url = "/api/user_template"
         response = await self._request("POST", url, token, data=template)
         return UserTemplateResponse(**response.json())
 
-    async def get_user_template(self, template_id: int, token: str) -> UserTemplateResponse:
+    async def get_user_template(self, template_id: int, token: str | None = None) -> UserTemplateResponse:
         url = f"/api/user_template/{template_id}"
         response = await self._request("GET", url, token)
         return UserTemplateResponse(**response.json())
 
     async def modify_user_template(self, template_id: int, template: UserTemplateModify,
-                                   token: str) -> UserTemplateResponse:
+                                   token: str | None = None) -> UserTemplateResponse:
         url = f"/api/user_template/{template_id}"
         response = await self._request("PUT", url, token, data=template)
         return UserTemplateResponse(**response.json())
 
-    async def remove_user_template(self, template_id: int, token: str) -> None:
+    async def remove_user_template(self, template_id: int, token: str | None = None) -> None:
         url = f"/api/user_template/{template_id}"
         await self._request("DELETE", url, token)
 
-    async def get_node_settings(self, token: str) -> Dict[str, Any]:
+    async def get_node_settings(self, token: str | None = None) -> Dict[str, Any]:
         url = "/api/node/settings"
         response = await self._request("GET", url, token)
         return response.json()
 
-    async def add_node(self, node: NodeCreate, token: str) -> NodeResponse:
+    async def add_node(self, node: NodeCreate, token: str | None = None) -> NodeResponse:
         url = "/api/node"
         response = await self._request("POST", url, token, data=node)
         return NodeResponse(**response.json())
 
-    async def get_node(self, node_id: int, token: str) -> NodeResponse:
+    async def get_node(self, node_id: int, token: str | None = None) -> NodeResponse:
         url = f"/api/node/{node_id}"
         response = await self._request("GET", url, token)
         return NodeResponse(**response.json())
 
-    async def modify_node(self, node_id: int, node: NodeModify, token: str) -> NodeResponse:
+    async def modify_node(self, node_id: int, node: NodeModify, token: str | None = None) -> NodeResponse:
         url = f"/api/node/{node_id}"
         response = await self._request("PUT", url, token, data=node)
         return NodeResponse(**response.json())
 
-    async def remove_node(self, node_id: int, token: str) -> None:
+    async def remove_node(self, node_id: int, token: str | None = None) -> None:
         url = f"/api/node/{node_id}"
         await self._request("DELETE", url, token)
 
-    async def reconnect_node(self, node_id: int, token: str) -> None:
+    async def reconnect_node(self, node_id: int, token: str | None = None) -> None:
         url = f"/api/node/{node_id}/reconnect"
         await self._request("POST", url, token)
 
-    async def get_nodes(self, token: str) -> List[NodeResponse]:
+    async def get_nodes(self, token: str | None = None) -> List[NodeResponse]:
         url = "/api/nodes"
         response = await self._request("GET", url, token)
         return [NodeResponse(**node) for node in response.json()]
 
-    async def get_usage(self, token: str, start: Optional[str] = None, end: Optional[str] = None) -> NodesUsageResponse:
+    async def get_usage(self, token: str | None = None, start: Optional[str] = None, end: Optional[str] = None) -> NodesUsageResponse:
         url = "/api/nodes/usage"
         params = {"start": start, "end": end}
         response = await self._request("GET", url, token, params=params)
         return NodesUsageResponse(**response.json())
 
-    async def get_user_subscription_info(self, url: str = None, token: str = None) -> SubscriptionUserResponse:
+    async def get_user_subscription_info(self, url: str = None, token: str | None = None) -> SubscriptionUserResponse:
         if url:
             # Use the provided URL if it is given
             final_url = url + "/info"
         elif token:
             # Form the URL using the token if it is provided
             final_url = f"/sub/{token}/info"
+        elif self._marzban_token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{self._marzban_token}/info"
         else:
             raise ValueError("Either url or token must be provided")
 
         response = await self._request("GET", final_url)
         return SubscriptionUserResponse(**response.json())
 
-    async def get_user_usage(self, url: str = None, token: str = None, start: Optional[str] = None,
+    async def get_user_usage(self, url: str = None, token: str | None = None, start: Optional[str] = None,
                              end: Optional[str] = None) -> Any:
         if url:
             # Use the provided URL if it is given
@@ -397,6 +417,9 @@ class MarzbanAPI:
         elif token:
             # Form the URL using the token if it is provided
             final_url = f"/sub/{token}/usage"
+        elif self._marzban_token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{self._marzban_token}/usage"
         else:
             raise ValueError("Either url or token must be provided")
         params = {"start": start, "end": end}
@@ -410,6 +433,9 @@ class MarzbanAPI:
         elif token:
             # Form the URL using the token if it is provided
             final_url = f"/sub/{token}/{client_type}"
+        elif self._marzban_token:
+            # Form the URL using the token if it is provided
+            final_url = f"/sub/{self._marzban_token}/{client_type}"
         else:
             raise ValueError("Either url or token must be provided")
 
